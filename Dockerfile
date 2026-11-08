@@ -24,3 +24,5 @@ USER pumpkin:pumpkin
 ENV RUST_BACKTRACE=1
 EXPOSE 25565
 ENTRYPOINT [ "pumpkin" ]
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+    CMD nc -z 127.0.0.1 25565 || exit 1

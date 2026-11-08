@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Usage: analyze.py <name> <expected_msgs> [raw_dir=results/raw]
 Reads <name>.log (pumpkin log), <name>-bots.json, <name>-stats.csv and prints a summary."""
-import re, sys, json, statistics as st
+import re, sys, os, gzip, json, statistics as st
 name, expected = sys.argv[1], int(sys.argv[2])
 d = sys.argv[3] if len(sys.argv) > 3 else 'results/raw'
-L = open(f'{d}/{name}.log').read().splitlines()
+f = f'{d}/{name}.log'
+L = (open(f) if os.path.exists(f) else gzip.open(f + '.gz', 'rt')).read().splitlines()
 msgs = [(int(m[1]), int(m[2])) for m in (re.search(r'MSG id=(\d+) recv=\d+ sent=\d+ lat=(-?\d+)ms', l) for l in L) if m]
 ids = {i for i, _ in msgs}; lat = sorted(v for _, v in msgs)
 print(f'messages: received {len(ids)} unique / sent {expected} ({len(msgs)} log lines)')
@@ -35,7 +36,7 @@ try:
     t0 = S[0][0]
     def at(s): return min(S, key=lambda x: abs(x[0] - t0 - s))
     pts = [S[0]] + [at(k * 300) for k in range(1, int((S[-1][0] - t0) // 300) + 1)] + [S[-1]]
-    print('RAM/CPU (container, docker stats; sample interval ~17 s) at t=start, every 5 min, end:')
+    print('RAM/CPU (container, docker stats; sample interval ~'+str(round((S[-1][0]-S[0][0])/max(1,len(S)-1)))+' s) at t=start, every 5 min, end:')
     for t, m, c in pts: print(f'  t={t-t0:5d}s  {m:7.1f} MiB  {c:5.1f} %')
     w = [x for x in S if x[0] - t0 >= 300]  # after 5 min warm-up
     if len(w) > 10:

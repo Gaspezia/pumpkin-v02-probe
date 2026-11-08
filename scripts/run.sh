@@ -2,11 +2,12 @@
 # Usage: NBOTS=10 DURATION=45 RATE=10 MSGS=100 scripts/run.sh [name]
 # Starts the stack (compose project pumpkin-v02-probe), runs bots and publisher, writes
 # results/raw/<name>.{log,-bots.json,-stats.csv} and prints the analysis. Stack stays up; stop it with
-# `docker compose down`. RUN_DIR holds generated state and secrets (gitignored).
+# `docker compose down`. .run/ holds generated state and secrets (gitignored) and is kept between runs.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 NBOTS=${NBOTS:-10}; DURATION=${DURATION:-45}; RATE=${RATE:-10}; MSGS=${MSGS:-100}
 NAME=${1:-run-$(date +%Y%m%d-%H%M%S)}; PROXY_PORT=${PROXY_PORT:-15590}; export PROXY_PORT
+export HOST_UID=${HOST_UID:-$(id -u)} HOST_GID=${HOST_GID:-$(id -g)}   # containers write .run/ as the calling user
 WASM=${WASM:-target/wasm32-wasip2/release/async_probe.wasm}
 mkdir -p results/raw .run/pumpkin/plugins .run/proxy
 [ -f "$WASM" ] || { echo "build the plugin first: cargo build --release --target wasm32-wasip2"; exit 1; }
@@ -17,10 +18,13 @@ printf %s "$SECRET" > .run/proxy/forwarding.secret
 cp config/velocity.toml .run/proxy/velocity.toml
 sed "s/@SECRET@/$SECRET/" config/pumpkin.toml > .run/pumpkin/pumpkin.toml
 cp "$WASM" .run/pumpkin/plugins/async_probe.wasm
-chmod -R a+rwX .run/pumpkin
 docker compose up -d --force-recreate
 PUMPKIN=$(docker compose ps -q pumpkin); REDIS=$(docker compose ps -q redis)
-until docker logs "$PUMPKIN" 2>&1 | grep -q "Server is now running"; do sleep 1; done
+for i in $(seq 180); do
+  docker logs "$PUMPKIN" 2>&1 | grep -q "Server is now running" && break
+  if [ "$i" = 180 ]; then echo "pumpkin not ready after 180 s; last 30 log lines:"; docker logs --tail 30 "$PUMPKIN" 2>&1; exit 1; fi
+  sleep 1
+done
 sleep 12   # first clock window outside the scenario
 R=results/raw/$NAME; : > $R-stats.csv
 scripts/sample-stats.sh "$PUMPKIN" $R-stats.csv 15 & SAMPLER=$!

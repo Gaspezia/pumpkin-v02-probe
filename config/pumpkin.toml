@@ -1,0 +1,25 @@
+# Minimal config; everything else uses Pumpkin defaults. @SECRET@ is replaced by scripts/run.sh.
+[networking.proxy]
+enabled = true
+
+[networking.proxy.velocity]
+enabled = true
+secret = "@SECRET@"
+
+[networking.java]
+online_mode = false
+encryption = false
+max_players = 1000
+
+[plugins]
+enabled = true
+allow_unsigned = true
+ask_permission_confirmation = true
+verify_signatures = true
+allowed_permissions = ["network.tcp.connect", "network.dns", "sys.env"]
+
+[update_checker]
+enabled = false
+
+[telemetry]
+enabled = false

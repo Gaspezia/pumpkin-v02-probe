@@ -1,0 +1,36 @@
+# redis + pumpkin (v0.2 plugin API) + velocity (ViaVersion). Run it through scripts/run.sh,
+# which generates the secrets and the .run/ directory this file mounts.
+name: pumpkin-v02-probe
+
+services:
+  # Velocity 4.3.0 build 44 + ViaVersion/ViaBackwards: Mineflayer 4.39 speaks at most 26.1,
+  # Pumpkin speaks 26.3. login-ratelimit = 0 because all bots connect from 127.0.0.1.
+  proxy:
+    image: itzg/mc-proxy:java25-2026.9.1
+    ports:
+      - "127.0.0.1:${PROXY_PORT:-15590}:25565"
+    environment:
+      TYPE: CUSTOM
+      BUNGEE_JAR_FILE: /server/velocity.jar
+      MEMORY: 512M
+    volumes:
+      - ./.run/proxy:/server
+    depends_on: [pumpkin]
+
+  pumpkin:
+    image: ${PUMPKIN_IMAGE:-pumpkin-v02-probe:local}
+    build: .
+    user: "2613:2613"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      PROBE_VARIANT: ${PROBE_VARIANT:-a1}
+    cpus: 1.0
+    mem_limit: 4g
+    volumes:
+      - ./.run/pumpkin:/pumpkin
+    depends_on: [redis]
+
+  # No host port: reachable on the compose network only.
+  redis:
+    image: redis:7-alpine

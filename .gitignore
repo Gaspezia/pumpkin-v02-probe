@@ -1,0 +1,6 @@
+target/
+pumpkin-src/
+.run/
+bots/node_modules/
+results/raw/soak-*.log
+results/raw/docker-ps-*.txt

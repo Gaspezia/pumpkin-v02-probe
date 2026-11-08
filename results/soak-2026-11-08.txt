@@ -1,0 +1,17 @@
+messages: received 3600 unique / sent 3600 (3600 log lines)
+latency ms: median=0.0 p99=2 max=69 min=0
+clock windows(10s): 182, mean of avg=50.00ms min=50.0 max=50.0; max tick interval=100.3ms; ticks >200ms=0; windows with listening=false: 0
+logged events: joins=20 chats=11899
+log errors/panics: none
+bots: n=20 spawned=20 kicked=0 errors=0 connected_at_end=20
+RAM/CPU (container, docker stats; sample interval ~17 s) at t=start, every 5 min, end:
+  t=    0s     49.9 MiB   14.0 %
+  t=  305s    232.8 MiB   13.2 %
+  t=  593s    233.7 MiB   13.7 %
+  t=  898s    258.7 MiB   14.5 %
+  t= 1203s    262.9 MiB   14.4 %
+  t= 1492s    270.0 MiB   15.6 %
+  t= 1796s    274.4 MiB   15.3 %
+  t= 1812s    305.8 MiB    0.4 %
+RAM slope after 5 min warm-up: +20.70 MiB per 10 min (95 samples)
+CPU mean=15.1% max=27.0%

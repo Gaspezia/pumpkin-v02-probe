@@ -1,0 +1,11 @@
+messages: received 100 unique / sent 100 (100 log lines)
+latency ms: median=1.0 p99=65 max=70 min=0
+clock windows(10s): 6, mean of avg=50.00ms min=50.0 max=50.0; max tick interval=106.0ms; ticks >200ms=0; windows with listening=false: 0
+logged events: joins=10 chats=121
+log errors/panics: none
+bots: n=10 spawned=10 kicked=0 errors=0 connected_at_end=10
+RAM/CPU (container, docker stats; sample interval ~17 s) at t=start, every 5 min, end:
+  t=    0s    145.1 MiB   13.5 %
+  t=   48s    336.3 MiB    0.4 %
+RAM slope: run too short
+CPU mean=10.3% max=17.0%

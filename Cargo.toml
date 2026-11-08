@@ -1,0 +1,5 @@
+[workspace]
+members = ["probe"]
+# ./pumpkin-src is the SDK source checkout (scripts/checkout-pumpkin.sh), not a member.
+exclude = ["pumpkin-src"]
+resolver = "2"

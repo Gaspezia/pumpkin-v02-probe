@@ -1,0 +1,8 @@
+{
+  "name": "pumpkin-v02-probe-bots",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "mineflayer": "4.39.0"
+  }
+}

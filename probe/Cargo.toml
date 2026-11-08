@@ -1,0 +1,14 @@
+[package]
+name = "async-probe"
+version = "0.2.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+pumpkin-plugin-api-v0_2 = { path = "../pumpkin-src/crates/pumpkin-plugin-api-v0_2" }
+wit-bindgen = { version = "0.63", default-features = false, features = ["async-spawn"] }
+wasip3 = "0.9"
+tracing = "0.1"

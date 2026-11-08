@@ -98,7 +98,9 @@ run, 100/100 messages, same clock and no kicks, and its files were deleted.
 | CPU mean | 13 % | 15 % |
 
 The ~70 ms latency maxima fall in the 10 s window where the bots join and load chunks.
-`results/short-45s-<sha>.txt`-style files from later commits record re-validations of the fixed scripts.
+`results/short-45s-eca1c8d.txt` is the re-validation of the fixed scripts (`fix/review-findings`), run twice in a row as a
+non-root user (uid 1000). The first run, on an empty `.run/`, had one 382 ms tick interval (world generation, CPU contention);
+the second was clean (max 113 ms). Both: 100/100, 0 kicks.
 
 The image used for these runs was built from the fork's merge commit (same tree hash) with the Dockerfile this repo
 had before it gained a `HEALTHCHECK` (`nc -z 127.0.0.1 25565`); the current Dockerfile includes it. No effect on the results.

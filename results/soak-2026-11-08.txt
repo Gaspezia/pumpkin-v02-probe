@@ -15,3 +15,4 @@ RAM/CPU (container, docker stats; sample interval ~17 s) at t=start, every 5 min
   t= 1812s    305.8 MiB    0.4 %
 RAM slope after 5 min warm-up: +20.70 MiB per 10 min (95 samples)
 CPU mean=15.1% max=27.0%
+Produced with commit 2c17ccb (channel then named `gzprobe`)

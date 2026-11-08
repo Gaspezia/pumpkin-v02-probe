@@ -1,7 +1,8 @@
 //! Probe: long-lived Redis SUBSCRIBE without blocking the tick or plugin events.
-//! Variant selected by env `PROBE_VARIANT`: a1 (spawn_local from on_load, default), a2 (scheduled
-//! task running the async p3 socket loop), b (blocking std::net in a scheduled task).
-//! a2 and b are kept to reproduce the failure modes described in the README.
+//! Variant selected by env `PROBE_VARIANT`: a1 (spawn_local from on_load, default), a2 (the
+//! never-ending async socket future `listen_p3` awaited inside a `schedule_delayed_task` closure),
+//! b (blocking std::net read loop in a scheduled task).
+//! a2 and b are kept to reproduce the freeze described in the README.
 use pumpkin_plugin_api_v0_2::{
     Context, EventPriority, Plugin, PluginMetadata, Result, Server,
     events::{EventData, EventHandler, PlayerChatEvent, PlayerJoinEvent},
@@ -28,8 +29,8 @@ fn env_or(k: &str, d: &str) -> String {
 // ---- RESP minimal -------------------------------------------------------------------------
 #[derive(Debug)]
 enum Frame {
-    Simple(String),
-    Int(i64),
+    Simple,
+    Int,
     Bulk(Vec<u8>),
     Array(Vec<Frame>),
 }
@@ -38,14 +39,14 @@ fn line(b: &[u8]) -> Option<(&[u8], usize)> {
 }
 fn parse(b: &[u8]) -> Option<(Frame, usize)> {
     let (l, n) = line(b)?;
-    let rest = std::str::from_utf8(&l[1..]).ok()?;
+    let rest = std::str::from_utf8(l.get(1..)?).ok()?;
     match l.first()? {
-        b'+' | b'-' => Some((Frame::Simple(rest.to_string()), n)),
-        b':' => Some((Frame::Int(rest.parse().ok()?), n)),
+        b'+' | b'-' => Some((Frame::Simple, n)),
+        b':' => rest.parse::<i64>().ok().map(|_| (Frame::Int, n)),
         b'$' => {
             let len: i64 = rest.parse().ok()?;
             if len < 0 {
-                return Some((Frame::Simple(String::new()), n));
+                return Some((Frame::Simple, n));
             }
             let len = len as usize;
             (b.len() >= n + len + 2).then(|| (Frame::Bulk(b[n..n + len].to_vec()), n + len + 2))
@@ -139,7 +140,7 @@ async fn listen_p3() {
     let host = env_or("REDIS_HOST", "redis");
     let port: u16 = env_or("REDIS_PORT", "6379").parse().unwrap_or(6379);
     let pass = env_or("REDIS_PASSWORD", "");
-    let chan = env_or("PROBE_CHANNEL", "gzprobe");
+    let chan = env_or("PROBE_CHANNEL", "probe");
     let r: std::result::Result<(), String> = async {
         let ip = match resolve_addresses(host.clone()).await.map_err(|e| format!("dns {e:?}"))?
             .into_iter().find_map(|a| if let IpAddress::Ipv4(v) = a { Some(v) } else { None })
@@ -182,7 +183,7 @@ fn listen_blocking() {
     use std::net::{TcpStream, ToSocketAddrs};
     let host = env_or("REDIS_HOST", "redis");
     let port = env_or("REDIS_PORT", "6379");
-    let chan = env_or("PROBE_CHANNEL", "gzprobe");
+    let chan = env_or("PROBE_CHANNEL", "probe");
     let r = (|| -> std::io::Result<()> {
         let sa = format!("{host}:{port}").to_socket_addrs()?.next().ok_or_else(|| std::io::Error::other("dns"))?;
         let mut s = TcpStream::connect(sa)?;

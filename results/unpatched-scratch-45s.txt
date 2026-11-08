@@ -9,3 +9,4 @@ RAM/CPU (container, docker stats; sample interval ~17 s) at t=start, every 5 min
   t=   48s    336.3 MiB    0.4 %
 RAM slope: run too short
 CPU mean=10.3% max=17.0%
+Produced with commit 2c17ccb (channel then named `gzprobe`)

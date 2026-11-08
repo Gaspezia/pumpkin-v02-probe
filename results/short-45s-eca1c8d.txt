@@ -1,0 +1,28 @@
+Produced with commit eca1c8d (branch fix/review-findings), run as uid 1000 (non-root), twice in a row, 10 bots, 45 s, 100 msgs at 10/s.
+Image pumpkin-gaspezia:v0_2-1a5cff9 (built before the Dockerfile gained its HEALTHCHECK, same tree hash). Both runs exit 0.
+
+== run 1 (first start: empty .run/, world generated, npm ci)
+messages: received 100 unique / sent 100 (100 log lines)
+latency ms: median=1.0 p99=304 max=404 min=0
+clock windows(10s): 7, mean of avg=50.00ms min=50.0 max=50.0; max tick interval=382.2ms; ticks >200ms=1; windows with listening=false: 0
+logged events: joins=10 chats=128
+log errors/panics: none
+bots: n=10 spawned=10 kicked=0 errors=0 connected_at_end=10
+RAM/CPU (container, docker stats; sample interval ~16 s) at t=start, every 5 min, end:
+  t=    0s    145.7 MiB   21.1 %
+  t=   48s    413.1 MiB    0.4 %
+RAM slope: run too short
+CPU mean=32.9% max=101.4%
+
+== run 2 (second run, .run/ and world reused)
+messages: received 100 unique / sent 100 (100 log lines)
+latency ms: median=0.0 p99=63 max=66 min=0
+clock windows(10s): 6, mean of avg=50.00ms min=50.0 max=50.0; max tick interval=113.3ms; ticks >200ms=0; windows with listening=false: 0
+logged events: joins=10 chats=124
+log errors/panics: none
+bots: n=10 spawned=10 kicked=0 errors=0 connected_at_end=10
+RAM/CPU (container, docker stats; sample interval ~16 s) at t=start, every 5 min, end:
+  t=    0s     55.5 MiB   27.4 %
+  t=   48s    213.5 MiB    0.3 %
+RAM slope: run too short
+CPU mean=14.8% max=27.4%

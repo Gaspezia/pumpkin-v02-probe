@@ -13,6 +13,8 @@ services:
       TYPE: CUSTOM
       BUNGEE_JAR_FILE: /server/velocity.jar
       MEMORY: 512M
+      UID: ${HOST_UID:-1000}
+      GID: ${HOST_GID:-1000}
     volumes:
       - ./.run/proxy:/server
     depends_on: [pumpkin]
@@ -20,7 +22,7 @@ services:
   pumpkin:
     image: ${PUMPKIN_IMAGE:-pumpkin-v02-probe:local}
     build: .
-    user: "2613:2613"
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     environment:
       REDIS_HOST: redis
       REDIS_PORT: "6379"

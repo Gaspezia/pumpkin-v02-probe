@@ -1,0 +1,12 @@
+[plugins]
+enabled = true
+allow_unsigned = true
+ask_permission_confirmation = true
+verify_signatures = true
+allowed_permissions = ["sys.env"]
+
+[update_checker]
+enabled = false
+
+[telemetry]
+enabled = false
